@@ -46,12 +46,19 @@ on today's tape; no matched check means the entry stays ungraded, so your
 calibration never lies to you. A 5-minute watchdog flags open trades whose
 stop or target level trades. The journal is private to your account.
 
+`amend_trade` edits an open trade — trail your stop, adjust the target, fix
+size or thesis. Moving a stop changes only what the watchdog monitors:
+realized **R is always measured against your initial stop**, so trailing to
+breakeven can never inflate it. `void_trade` soft-deletes a mis-logged entry
+(wrong asset, duplicate) — removed from your stats, retained and recoverable,
+never silently gone.
+
 ### `get_price` / `get_prices` — canonical price (free)
 THE live exchange mid every other tool's spot should agree with. If any
 payload's embedded price disagrees materially with `get_price`, that payload
 is stale — discount it. Built so your agent never has to trust a stale anchor.
 
-### Everything else (38 tools total)
+### Everything else (40 tools total)
 Typed signals with per-type win rates (failures included), own DEX liquidation
 maps, support/resistance levels, market regime, macro bias, economic calendar,
 options analytics with positioning coverage grades, cross-asset flows, market
@@ -62,7 +69,7 @@ analogs, mindshare, trade plans, and more —
 
 | | Free (any key) | Pro ($39.99/mo) |
 |---|---|---|
-| Tools | 14 (incl. `check_trade`) | all 38 |
+| Tools | 14 (incl. `check_trade`) | all 40 |
 | `check_trade` | 3/day | unlimited |
 | Signals | 15-min delayed | real-time |
 | Trade journal | — | included |
