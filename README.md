@@ -29,24 +29,48 @@ Every grade is logged when issued and resolved at its horizon against real
 prices. Grade calibration (do A-grades actually beat F-grades?) publishes on
 [/proof](https://n0brains.com/proof).
 
-### Everything else (33 tools)
+### `log_trade` / `close_trade` / `get_journal` — the trade journal (Pro)
+Your agent says "in at 64,635" and the journal does the rest. `log_trade`
+snapshots full entry conditions automatically (grade, flags, regime — the
+same read as `check_trade`), and `close_trade` resolves the outcome from real
+candles: return %, R multiple vs your initial stop, MAE/MFE (worst drawdown /
+best unrealized gain while open), and whether your stop or target level
+actually traded — wick-accurate. `get_journal` returns open positions with
+live unrealized PnL, closed history, and a personal calibration block:
+**your realized R per entry grade** — where your entries are actually good.
+
+Historical backfill: pass `opened_at` / `closed_at` (epoch seconds) to import
+past trades. Backfilled entries are graded by **your own `check_trade`
+nearest the fill** — the read you actually got at the time, never re-graded
+on today's tape; no matched check means the entry stays ungraded, so your
+calibration never lies to you. A 5-minute watchdog flags open trades whose
+stop or target level trades. The journal is private to your account.
+
+### `get_price` / `get_prices` — canonical price (free)
+THE live exchange mid every other tool's spot should agree with. If any
+payload's embedded price disagrees materially with `get_price`, that payload
+is stale — discount it. Built so your agent never has to trust a stale anchor.
+
+### Everything else (38 tools total)
 Typed signals with per-type win rates (failures included), own DEX liquidation
 maps, support/resistance levels, market regime, macro bias, economic calendar,
-options analytics, cross-asset flows, market analogs, and more —
+options analytics with positioning coverage grades, cross-asset flows, market
+analogs, mindshare, trade plans, and more —
 [full docs](https://n0brains.com/docs).
 
 ## Tiers
 
 | | Free (any key) | Pro ($39.99/mo) |
 |---|---|---|
-| Tools | 13 (incl. `check_trade`) | all 33 |
+| Tools | 14 (incl. `check_trade`) | all 38 |
 | `check_trade` | 3/day | unlimited |
 | Signals | 15-min delayed | real-time |
+| Trade journal | — | included |
 | Rate limit | 60/min | 600/min |
 
 Free tools: `check_trade`, `list_signals`, `get_signal`, `get_signals_since`,
-`get_levels`, `get_market_opens`, `get_performance`, `get_asset_class_proof`,
-`get_tier_performance`, `get_market_regime`, `get_macro`,
+`get_levels`, `get_market_opens`, `get_price`, `get_prices`,
+`get_performance`, `get_asset_class_proof`, `get_market_regime`, `get_macro`,
 `get_economic_calendar`, `health`.
 
 ## Connect
@@ -77,6 +101,18 @@ Older clients without native Streamable HTTP support can bridge via
   }
 }
 ```
+
+### claude.ai (custom connector)
+claude.ai connectors can't send custom headers — pass the key as a query
+parameter instead (headers win if both are present):
+```
+https://api.n0brains.com/mcp?api_key=intel_sk_YOUR_KEY
+```
+Settings → Connectors → Add custom connector → paste the URL. Note: URLs can
+end up in logs and screenshots — treat a query-param key like any secret, and
+rotate it from your dashboard if it leaks. If new server tools don't appear
+in existing chats, reconnect the connector and start a fresh chat (clients
+cache the tool catalog).
 
 ### Cursor / Cline / anything MCP
 Point the client at `https://api.n0brains.com/mcp/` with the `X-API-Key`
